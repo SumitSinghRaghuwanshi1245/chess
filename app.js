@@ -49,6 +49,14 @@ uniquesocket.on("move", (move) => {
     try{
         if(chess.turn() === "w" && uniquesocket.id !== players.white) return;   // make sure ki dono players sahi move chal rahe
         if(chess.turn() === "b" && uniquesocket.id !== players.black) return;
+
+
+        const result = chess.move(move);                             //correct move or not in terms of chess ki goti
+        if(result){
+            currentPlayer = chess.turn();
+             io.emit("move", move);
+        }
+
     }
     catch(err){}
 })
