@@ -36,6 +36,23 @@ if(!players.white){
 }
 
 
+uniquesocket.on("disconnect", function(){
+if(uniquesocket.id === players.white){
+    delete players.white;
+} else if(uniquesocket.id === players.black){
+    delete players.black;
+}
+});
+
+
+uniquesocket.on("move", (move) => {
+    try{
+        if(chess.turn() === "w" && uniquesocket.id !== players.white) return;   // make sure ki dono players sahi move chal rahe
+        if(chess.turn() === "b" && uniquesocket.id !== players.black) return;
+    }
+    catch(err){}
+})
+
 
 
 // uniquesocket.on("disconnect", function(){                                        // local host tab band hote hi ye dikhayega
