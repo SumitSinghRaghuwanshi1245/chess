@@ -21,11 +21,26 @@ app.get("/", (req, res) => {
     res.render("index", { title: "Chess Game" });
 });
 
-io.on("connection", function (uniquesocket) {
+io.on("connection", function (uniquesocket) {                                // local host pe tab open hote hi ye dikhayega 
 console.log("Connnected");
 
 
+if(!players.white){
+    players.white = uniquesocket.id;
+    uniquesocket.emit("playerRole", "w");
+} else if(!players.black){
+    players.black = uniquesocket.id;
+    uniquesocket.emit("playerRole", "b");
+} else {
+    uniquesocket.emit("spectatorRole");
+}
 
+
+
+
+// uniquesocket.on("disconnect", function(){                                        // local host tab band hote hi ye dikhayega
+//     console.log("Disconnected");
+// })
 
 
 
