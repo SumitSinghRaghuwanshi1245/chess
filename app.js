@@ -3,6 +3,7 @@ const socket = require("socket.io");
 const http = require("http");
 const {Chess} = require("chess.js");
 const path = require("path");
+const { log } = require("console");
 
 const app = express();
 const server = http.createServer(app);
@@ -55,10 +56,18 @@ uniquesocket.on("move", (move) => {
         if(result){
             currentPlayer = chess.turn();
              io.emit("move", move);
+             io.emit("boardState", chess.fen())
+        }
+        else {
+            console.log("Invalid Move :", move);
+            uniquesocket.emit("invalid move", move);
         }
 
     }
-    catch(err){}
+    catch(err){
+        console.log(err);
+        uniquesocket.emit("Invalid Move :", move);
+    }
 })
 
 
