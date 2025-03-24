@@ -11,33 +11,109 @@ const board = chess.board();
 boardElement.innerHTML = "";
 board.forEach((row , rowindex) => {                  
     row.forEach((square, squareindex) => {
-        const squareElement = document.createElemnt("div");
+        const squareElement = document.createElement("div");
         squareElement.classList.add(                                        // this is for the alternaste black n white pattern in the chess board
             "square", 
             (rowindex + squareindex) % 2 === 0 ? "light" : "dark"
         );
 
         squareElement.dataset.row = rowindex;
-        square.dataset.col = squareindex;
+        squareElement.dataset.col = squareindex;
 
         if(square){
             const pieceElement = document.createElement("div");
             pieceElement.classList.add(
                 "Piece",
-                 square.color === 'w' ? "white" : "black");               // check pattern ke upar element hai ya nhi
-        };
-        pieceElement.innerHTML = get
+                 square.color === 'w' ? "white" : "black"
+                );                                          // check pattern ke upar element hai ya nhi
+                
+                 pieceElement.innerText = getPieceUnicode(square); 
+                 pieceElement.draggable = playerRole === square.color; 
+
+                pieceElement.addEventListener("dragstart", (e) => {
+                    if(pieceElement.draggable) {
+                        draggedPiece = pieceElement;
+                        sourceSquare = {row: rowindex, col: squareindex};
+                        e.dataTransfer.setData("text/plain", "");
+                    }
+                }) ;
+
+                pieceElement.addEventListener("dragend", (e) => {
+                    draggedPiece = null;
+                    sourceSquare = null;
+                });
+
+                squareElement.appendChild(pieceElement);
+        }   
+        
+        squareElement.addEventListener("dragover", function (e) {
+            e.preventDefault();
+        });
+
+        squareElement.addEventListener("drop", function (e) {
+             e.preventDefault();
+
+             if(draggedPiece){
+                const targetSource = {
+                    row: parseInt(squareElement.dataset.row),
+                    col: parseInt(squareElement.dataset.col),
+                };
+                handleMove(sourceSquare, targetSource)
+             }
+        });
+
+        boardElement.appendChild(squareElement); 
 });
+
 });
+
 };
 
-const handleMove = () => {};
+const handleMove = (source, target) => {
+    const move = {
+        from: `${String.fromCharCode(97+source.col)}${8 - target.row}`,
+        to: `${String.fromCharCode(97+source.col)}${8 - target.row}`,
+        promotion: "q",
+    };
 
-const getPieceUnicode = () => {};
+    socket.emit("move", move)
+};
+
+const getPieceUnicode = (piece) => {
+    const unicodePieces = {
+        p: "♟",
+        r: "♜",
+        n: "♞",
+        b: "♝",
+        q: "♛",
+        k: "♚",
+        P: "♙",
+        R: "♖",   
+        N: "♘",
+        B: "♗",
+        Q: "♕",
+        K: "♔",
+    };
+
+    return unicodePieces[piece.type] || "";
+};
 
 
+socket.on("playerRole", function (role) {
+    playerRole = role;
+    renderBoard();
+});
+
+socket.on("spectatoRole", function () {
+   playerRole = null;
+   renderBoard();
+});
 
 
+socket.on("move", function (move) {
+    chess.move(move);
+    renderBoard();
+});
 
 renderBoard();
 
