@@ -6,5 +6,5 @@ Using of Socket.io, Ejs, expressJS this made to be efficient and real time worki
 
 Tutorial to start the projct:
 npm i 
-nodemon index.js
+nodemon app.js
 start playing
